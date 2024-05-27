@@ -13,21 +13,22 @@
   const cpiValue = writable();
   const loanData = writable();
 
-  // Function to fetch CPI data
-  const getCPILatestAnswer = async () => {
-    try {
-      const valueCPI = await contract.methods.getCPILatestAnswer().call();
-      cpiValue.set(parseFloat(valueCPI)/(10**18));
-    } catch (error) {
-      console.error("Error fetching CPI value:", error);
-      cpiValue.set(null);
-    }
-  };
-
   // Function to fetch Loan data
   const getLoanData = async () => {
     try {
       const loan = await contract.methods.loans(1).call();
+      // Convert BigInt values to numbers
+      loan.loanId = Number(loan.loanId);
+      loan.amount = Number(loan.amount);
+      loan.initialInterestRate = Number(loan.initialInterestRate) / 100; // Convert bps to percentage
+      loan.adjustedInterestRate = Number(loan.adjustedInterestRate) / 100; // Convert bps to percentage
+      loan.margin = Number(loan.margin);
+      loan.lifetimeCap = Number(loan.lifetimeCap);
+      loan.upb = Number(loan.upb);
+      loan.paymentDate = Number(loan.paymentDate);
+      loan.dueDate = Number(loan.dueDate);
+      loan.adjustmentInterval = Math.round(Number(loan.adjustmentInterval) / (365 * 24 * 60 * 60)); // Convert seconds to years
+      loan.lastAdjustmentDate = Number(loan.lastAdjustmentDate);
       loanData.set(loan);
     } catch (error) {
       console.error("Error fetching loan data:", error);
@@ -35,19 +36,68 @@
     }
   };
 
+  // Function to format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  };
+
   // Fetch CPI data when the component is mounted
   onMount(() => {
-    getCPILatestAnswer();
+    getLoanData();
   });
 
 </script>
 
 <div class="bg-white p-6 rounded-lg shadow-md">
   <h2 class="text-2xl font-bold mb-4">Borrower Page</h2>
-  <p>Account: {$selectedAccount}</p>
-  <p>ChainID: {$chainId}</p>
-  <p>CPI Value: {$cpiValue}</p>
-  <p>Loan Data: {$loanData}</p>
+  {#if $loanData}
+    <div class="mt-4 bg-gray-100 p-6 rounded-lg shadow-inner">
+      <h3 class="text-xl font-semibold mb-2">Loan Details</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <strong>Loan ID:</strong> {$loanData.loanId}
+        </div>
+        <div>
+          <strong>IPFS Hash:</strong> {$loanData.ipfsHash}
+        </div>
+        <div>
+          <strong>Amount:</strong> {formatCurrency($loanData.amount)}
+        </div>
+        <div>
+          <strong>Initial Interest Rate:</strong> {$loanData.initialInterestRate}%
+        </div>
+        <div>
+          <strong>Adjusted Interest Rate:</strong> {$loanData.adjustedInterestRate}%
+        </div>
+        <div>
+          <strong>Margin:</strong> {$loanData.margin}
+        </div>
+        <div>
+          <strong>Lifetime Cap:</strong> {$loanData.lifetimeCap}
+        </div>
+        <div>
+          <strong>UPB:</strong> {formatCurrency($loanData.upb)}
+        </div>
+        <div>
+          <strong>Payment Date:</strong> {new Date($loanData.paymentDate * 1000).toLocaleDateString()}
+        </div>
+        <div>
+          <strong>Due Date:</strong> {new Date($loanData.dueDate * 1000).toLocaleDateString()}
+        </div>
+        <div>
+          <strong>Adjustment Interval:</strong> {$loanData.adjustmentInterval} year{ $loanData.adjustmentInterval > 1 ? 's' : ''}
+        </div>
+        <div>
+          <strong>Last Adjustment Date:</strong> {new Date($loanData.lastAdjustmentDate * 1000).toLocaleDateString()}
+        </div>
+        <div>
+          <strong>Is Paid:</strong> {$loanData.isPaid ? 'Yes' : 'No'}
+        </div>
+      </div>
+    </div>
+  {:else}
+    <p>Loading loan data...</p>
+  {/if}
   <!-- <p>Contract: {$contracts.MortgageServicingARM.methods.getCPILatestAnswer().call()}</p> -->
 
   <!-- {#if $connected }
@@ -80,3 +130,9 @@
 {/if} -->
 
 </div>
+
+<style>
+  .shadow-inner {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+</style>

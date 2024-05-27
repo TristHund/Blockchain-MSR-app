@@ -1,38 +1,120 @@
-# create-svelte
+# ARM Full Service Blockchain Loan System
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Welcome to the ARM Full Service Blockchain Loan System, a decentralized application (dApp) for managing adjustable-rate mortgage (ARM) loans on the blockchain. This system allows borrowers, servicers, and originators to interact with smart contracts for loan origination, payment processing, and interest rate adjustments.
 
-## Creating a project
+## Table of Contents
 
-If you're seeing this, you've probably already done this step. Congrats!
+- [Introduction](#introduction)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Smart Contracts](#smart-contracts)
+- [Frontend](#frontend)
+- [How to Use](#how-to-use)
+- [Contributing](#contributing)
+- [License](#license)
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+## Introduction
 
-# create a new project in my-app
-npm create svelte@latest my-app
+The ARM Full Service Blockchain Loan System leverages blockchain technology to provide a secure and transparent platform for managing ARM loans. This project includes smart contracts written in Solidity and a frontend built with Svelte and SvelteKit, utilizing Web3.js and Ethers.js for blockchain interactions.
+
+## Features
+
+- **Borrower Portal**: Allows borrowers to view their loan details and make payments.
+- **Servicer Portal**: Enables servicers to process payments, adjust interest rates, and reset payment statuses.
+- **Originator Portal**: Allows originators to originate new loans and view loan details.
+- **Blockchain Integration**: Uses smart contracts to handle loan origination, payment processing, and interest rate adjustments.
+
+## Technologies Used
+
+- **Solidity**: For writing smart contracts.
+- **Svelte/SvelteKit**: For building the frontend application.
+- **Web3.js/Ethers.js**: For interacting with the Ethereum blockchain.
+- **Tailwind CSS**: For styling the frontend application.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js and npm installed
+- MetaMask or any other Ethereum wallet installed in your browser
+
+### Installation
+
+1. Clone the repository:
+
+   ```sh
+   git clone https://github.com/yourusername/arm-blockchain-loan-system.git
+   cd arm-blockchain-loan-system
+   ```
+
+2. Install dependencies:
+
+   ```sh
+   npm install
+   ```
+
+3. Start the development server:
+
+   ```sh
+   npm run dev
+   ```
+
+## Project Structure
+
+```sh
+.
+├── abi
+│   └── MortgageServicingARMABI.json
+├── src
+│   ├── lib
+│   │   └── index.js
+│   ├── routes
+│   │   ├── borrower
+│   │   │   └── +page.svelte
+│   │   ├── originator
+│   │   │   └── +page.svelte
+│   │   ├── servicer
+│   │   │   ├── +layout.svelte
+│   │   │   ├── +page.svelte
+│   │   │   └── components
+│   │   │       ├── AdjustInterestRate.svelte
+│   │   │       ├── LoanDetails.svelte
+│   │   │       ├── PaymentProcessing.svelte
+│   │   │       └── ResetPaymentStatus.svelte
+│   ├── app.css
+│   ├── app.d.ts
+│   ├── app.html
+├── README.md
+├── tailwind.config.js
+└── vite.config.js
 ```
 
-## Developing
+## Smart Contracts
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+The smart contracts are written in Solidity and are responsible for managing loans. The main contract is `MortgageServicingARM`. You can find the ABI in the `abi` folder and the contract in the [contracts repository](https://github.com/TristHund/Blockchain-MSR-contracts).
 
-```bash
-npm run dev
+## Frontend
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+The frontend is built with SvelteKit and includes pages for borrowers, servicers, and originators. Each page allows the respective users to interact with the smart contracts.
 
-## Building
+## How to Use
 
-To create a production version of your app:
+### Borrower
 
-```bash
-npm run build
-```
+1. Connect your wallet.
+2. Navigate to the Borrower page.
+3. View loan details and make payments.
 
-You can preview the production build with `npm run preview`.
+### Servicer
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+1. Connect your wallet.
+2. Navigate to the Servicer page.
+3. Search for loans, process payments, adjust interest rates, and reset payment statuses.
+
+### Originator
+
+1. Connect your wallet.
+2. Navigate to the Originator page.
+3. Originate new loans and view loan details.

@@ -1,48 +1,70 @@
 <script>
-  import { selectedAccount, web3 } from 'svelte-web3';
+  import { selectedAccount, chainId } from 'svelte-web3';
+  import { writable } from 'svelte/store';
+  import Web3 from 'web3';
+  import loanContractAbi from '../../abi/MortgageServicingARMABI.json';
+  import LoanDetails from '$lib/components/LoanDetails.svelte';
+  import OriginateLoan from '$lib/components/OriginateLoan.svelte';
 
-  let loanId, ipfsHash, amount, initialInterestRate, margin, lifetimeCap, paymentDate, dueDate, adjustmentInterval;
+  const web3 = new Web3(window.ethereum);
+  const contractAddress = '0x43C595165FE9c412EB9a970f446C259eba1a2101';
+  const contract = new web3.eth.Contract(loanContractAbi, contractAddress);
 
-  async function originateLoan() {
-    const contractAddress = 'YOUR_CONTRACT_ADDRESS';
-    const abi = [
-      // Your contract ABI
-    ];
+  const loanData = writable(null);
+  const searchTerm = writable('');
 
-    const contract = new $web3.eth.Contract(abi, contractAddress);
-
+  // Function to fetch Loan data
+  const getLoanData = async (loanId) => {
     try {
-      await contract.methods.originateLoan({
-        loanId,
-        ipfsHash,
-        amount,
-        initialInterestRate,
-        margin,
-        lifetimeCap,
-        paymentDate,
-        dueDate,
-        adjustmentInterval
-      }).send({ from: $selectedAccount });
+      const loan = await contract.methods.loans(loanId).call();
+      loan.loanId = Number(loan.loanId);
+      loan.amount = Number(loan.amount);
+      loan.initialInterestRate = Number(loan.initialInterestRate) / 100;
+      loan.adjustedInterestRate = Number(loan.adjustedInterestRate) / 100;
+      loan.margin = Number(loan.margin);
+      loan.lifetimeCap = Number(loan.lifetimeCap);
+      loan.upb = Number(loan.upb);
+      loan.paymentDate = Number(loan.paymentDate);
+      loan.dueDate = Number(loan.dueDate);
+      loan.adjustmentInterval = Math.round(Number(loan.adjustmentInterval) / (365 * 24 * 60 * 60));
+      loan.lastAdjustmentDate = Number(loan.lastAdjustmentDate);
+      loanData.set(loan);
     } catch (error) {
-      console.error('Error originating loan:', error);
+      console.error("Error fetching loan data:", error);
+      loanData.set(null);
     }
-  }
+  };
+
 </script>
 
 <div class="bg-white p-6 rounded-lg shadow-md">
   <h2 class="text-2xl font-bold mb-4">Originator Page</h2>
-  <p>Account: {$selectedAccount}</p>
-  <form on:submit|preventDefault={originateLoan} class="space-y-4">
-    <input bind:value={loanId} placeholder="Loan ID" class="w-full p-2 border border-gray-300 rounded" />
-    <input bind:value={ipfsHash} placeholder="IPFS Hash" class="w-full p-2 border border-gray-300 rounded" />
-    <input bind:value={amount} placeholder="Amount" class="w-full p-2 border border-gray-300 rounded" />
-    <input bind:value={initialInterestRate} placeholder="Initial Interest Rate" class="w-full p-2 border border-gray-300 rounded" />
-    <input bind:value={margin} placeholder="Margin" class="w-full p-2 border border-gray-300 rounded" />
-    <input bind:value={lifetimeCap} placeholder="Lifetime Cap" class="w-full p-2 border border-gray-300 rounded" />
-    <input bind:value={paymentDate} placeholder="Payment Date" class="w-full p-2 border border-gray-300 rounded" />
-    <input bind:value={dueDate} placeholder="Due Date" class="w-full p-2 border border-gray-300 rounded" />
-    <input bind:value={adjustmentInterval} placeholder="Adjustment Interval" class="w-full p-2 border border-gray-300 rounded" />
-    <button type="submit" class="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700">Originate Loan</button>
-  </form>
-  <!-- Add originator-specific functionality here -->
+  <div class="mb-6">
+    <input 
+      type="number" 
+      placeholder="Enter Loan ID" 
+      bind:value={$searchTerm} 
+      class="border p-2 rounded w-full"
+    />
+    <button 
+      on:click={() => getLoanData($searchTerm)}
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2"
+    >
+      Search Loan
+    </button>
+  </div>
+
+  {#if $loanData}
+    <LoanDetails loan={$loanData} />
+  {:else}
+    <p>No loan data available. Please search for a loan.</p>
+  {/if}
+
+  <OriginateLoan />
 </div>
+
+<style>
+  .shadow-inner {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+</style>
