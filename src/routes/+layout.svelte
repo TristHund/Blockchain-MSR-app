@@ -1,7 +1,7 @@
 <script>
   import { tick, onMount } from 'svelte';
   import { defaultEvmStores as evm, selectedAccount, chainId } from 'svelte-web3';
-  import "../";
+  import "../style.css";
   import { writable } from 'svelte/store';
   
   let menuOpen = writable(false);

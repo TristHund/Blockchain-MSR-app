@@ -83,7 +83,7 @@ The ARM Full Service Blockchain Loan System leverages blockchain technology to p
 │   │   │       ├── LoanDetails.svelte
 │   │   │       ├── PaymentProcessing.svelte
 │   │   │       └── ResetPaymentStatus.svelte
-│   ├── app.css
+│   ├── style.css
 │   ├── app.d.ts
 │   ├── app.html
 ├── README.md
