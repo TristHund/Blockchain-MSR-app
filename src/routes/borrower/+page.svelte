@@ -2,19 +2,22 @@
   import { writable } from 'svelte/store';
   import loanContractAbi from '../../abi/MortgageServicingARMABI.json';
   import Web3 from 'web3';
-  import { loanRequests } from '../../stores.js';
-  
+  import { loanRequests, payments } from '../../stores.js';
 
   const web3 = new Web3(window.ethereum);
   const contractAddress = '0x43C595165FE9c412EB9a970f446C259eba1a2101';
   const contract = new web3.eth.Contract(loanContractAbi, contractAddress);
 
   const accountNumber = writable('');
+  const requestAccountNumber = writable('');
   const loanData = writable();
   const isLoading = writable(false);
   const isLoggedIn = writable(false);
   const loanAmount = writable(0);
   const requestMessage = writable('');
+  const loanRequestStatus = writable(null);
+  const paymentAmount = writable(0);
+  const paymentMessage = writable('');
 
   // Function to fetch Loan data
   const getLoanData = async (accountNumber) => {
@@ -48,15 +51,39 @@
       status: 'pending'
     });
     requestMessage.set(`Loan request submitted.`);
+    loanRequestStatus.set('pending');
   };
+
+  $: {
+    const request = $loanRequests.find(r => r.accountNumber === $accountNumber);
+    if (request) {
+      loanRequestStatus.set(request.status);
+    }
+  }
 
   const handleLogin = () => {
     getLoanData($accountNumber);
+    isLoggedIn.set(true);
   };
+
+  const handleLogout = () => {
+    loanData.set(null);
+    isLoggedIn.set(false);
+  }
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
   };
+
+  function submitPayment() {
+    payments.addPayment({
+      accountNumber: $accountNumber,
+      amount: $paymentAmount,
+      status: 'pending'
+    });
+    paymentMessage.set('Payment submitted.');
+  };
+
 </script>
 
 <div class="bg-white p-6 rounded-lg shadow-md">
@@ -88,14 +115,30 @@
         <div><strong>Last Adjustment Date:</strong> {new Date($loanData.lastAdjustmentDate * 1000).toLocaleDateString()}</div>
         <div><strong>Is Paid:</strong> {$loanData.isPaid ? 'Yes' : 'No'}</div>
       </div>
+      <div class="bg-white p-6 rounded-lg shadow-md mt-6">
+        <h2 class="text-2xl font-bold mb-4">Submit Payment</h2>
+        <form on:submit|preventDefault={submitPayment} class="space-y-4">
+          <input type="number" bind:value={$paymentAmount} placeholder="Enter payment amount" class="w-full p-2 border border-gray-300 rounded mb-4" />
+          <button type="submit" class="w-full p-2 bg-green-600 text-white rounded hover:bg-green-700">
+            Submit Payment
+          </button>
+        </form>
+        {#if $paymentMessage}
+          <p class="mt-4 text-green-600">{$paymentMessage}</p>
+        {/if}
+      </div>
+      <button on:click={handleLogout} class="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Logout
+      </button>
     </div>
   {/if}
 </div>
 
+{#if !$isLoggedIn}
 <div class="bg-white p-6 rounded-lg shadow-md mt-6">
   <h2 class="text-2xl font-bold mb-4">Request a Loan</h2>
   <form on:submit|preventDefault={requestLoan} class="space-y-4">
-    <input type="text" bind:value={$accountNumber} placeholder="Enter your account number" class="w-full p-2 border border-gray-300 rounded mb-4" />
+    <input type="text" bind:value={$requestAccountNumber} placeholder="Enter your account number" class="w-full p-2 border border-gray-300 rounded mb-4" />
     <input type="number" bind:value={$loanAmount} placeholder="Enter loan amount" class="w-full p-2 border border-gray-300 rounded mb-4" />
     <button type="submit" class="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700">
       Request Loan
@@ -104,7 +147,16 @@
   {#if $requestMessage}
     <p class="mt-4 text-green-600">{$requestMessage}</p>
   {/if}
+  {#if $loanRequestStatus === 'approved'}
+    <p class="mt-4 text-green-600">Your loan request has been approved!</p>
+  {:else if $loanRequestStatus === 'denied'}
+    <p class="mt-4 text-red-600">Your loan request has been denied.</p>
+  {:else if $loanRequestStatus === 'pending'}
+    <p class="mt-4 text-yellow-600">Your loan request is pending approval.</p>
+  {/if}
 </div>
+{/if}
+
 <style>
   .shadow-inner {
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);

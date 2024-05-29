@@ -1,6 +1,4 @@
 <script>
-  import { onMount } from 'svelte';
-  import { selectedAccount, chainId } from 'svelte-web3';
   import { writable } from 'svelte/store';
   import Web3 from 'web3';
   import loanContractAbi from '../../abi/MortgageServicingARMABI.json';
@@ -9,6 +7,7 @@
   import AdjustInterestRate from '$lib/components/AdjustInterestRate.svelte';
   import ResetPaymentStatus from '$lib/components/ResetPaymentStatus.svelte';
 
+
   const web3 = new Web3(window.ethereum);
   const contractAddress = '0x43C595165FE9c412EB9a970f446C259eba1a2101';
   const contract = new web3.eth.Contract(loanContractAbi, contractAddress);
@@ -16,6 +15,7 @@
   const loanData = writable(null);
   const searchTerm = writable('');
 
+  
   // Function to fetch Loan data
   const getLoanData = async (loanId) => {
     try {
@@ -38,10 +38,6 @@
     }
   };
 
-  // Fetch loan data when the component is mounted
-  onMount(() => {
-    getLoanData(1); // default loan ID for initial load
-  });
 </script>
 
 <div class="bg-white p-6 rounded-lg shadow-md">
@@ -69,10 +65,5 @@
   {:else}
     <p>No loan data available. Please search for a loan.</p>
   {/if}
-</div>
 
-<style>
-  .shadow-inner {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-</style>
+</div>

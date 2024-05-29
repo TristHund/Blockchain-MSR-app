@@ -13,6 +13,7 @@
 
   const loanData = writable(null);
   const searchTerm = writable('');
+  const selectedLoanId = writable(null);
 
   // Function to fetch Loan data
   const getLoanData = async (loanId) => {
@@ -37,11 +38,16 @@
   };
 
   function approveLoan(id) {
-    loanRequests.approveLoan(id);
+    selectedLoanId.set(id);
   };
 
   function denyLoan(id) {
     loanRequests.denyLoan(id);
+  };
+
+  function handleOriginationSuccess(loanId) {
+    loanRequests.approveLoan(loanId);
+    selectedLoanId.set(null);
   };
 
 </script>
@@ -68,8 +74,6 @@
   {:else}
     <p>No loan data available. Please search for a loan.</p>
   {/if}
-
-  <OriginateLoan />
 </div>
 
 <div class="bg-white p-6 rounded-lg shadow-md mt-6">
@@ -85,11 +89,11 @@
         <button on:click={() => denyLoan(request.id)} class="bg-red-600 hover:bg-red-700 text-white py-1 px-2 rounded">Deny</button>
       {/if}
     </div>
+    {#if $selectedLoanId !== null}
+      <OriginateLoan loanId={request.accountNumber} on:success={() => handleOriginationSuccess($selectedLoanId)} />
+    {/if}
   {/each}
 </div>
 
-<style>
-  .shadow-inner {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-</style>
+
+
