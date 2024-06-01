@@ -1,6 +1,7 @@
 <script>
     import { loanData, getLoanData } from '../../lib/utils/loanData';
     import { writable } from 'svelte/store';
+    import { onDestroy } from 'svelte';
     import { loanRequests } from '$lib/stores/loanRequests';
     import { payments } from '$lib/stores/payments';
   
@@ -56,6 +57,11 @@
       });
       paymentMessage.set('Payment submitted.');
     };
+
+    onDestroy(() => {
+    loanData.set(null);
+  });
+  
   </script>
   
   <div class="bg-white p-6 rounded-lg shadow-md">
