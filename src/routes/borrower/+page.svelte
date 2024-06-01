@@ -17,7 +17,7 @@
   
     function requestLoan() {
       loanRequests.addLoanRequest({
-        accountNumber: $accountNumber,
+        accountNumber: $requestAccountNumber,
         amount: $loanAmount,
         status: 'pending'
       });
