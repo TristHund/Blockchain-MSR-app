@@ -1,5 +1,6 @@
 <script>
     import { writable } from 'svelte/store';
+    import { onDestroy } from 'svelte';
     import { loanData, getLoanData } from '../../lib/utils/loanData';
     import LoanDetails from '$lib/components/LoanDetails.svelte';
     import PaymentProcessing from '$lib/components/PaymentProcessing.svelte';
@@ -7,6 +8,11 @@
     import ResetPaymentStatus from '$lib/components/ResetPaymentStatus.svelte';
   
     const searchTerm = writable('');
+
+    onDestroy(() => {
+    loanData.set(null);
+  });
+  
   </script>
   
   <div class="bg-white p-6 rounded-lg shadow-md">

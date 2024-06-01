@@ -1,6 +1,7 @@
 <script>
   import { loanData, getLoanData } from '../../lib/utils/loanData';
   import { writable } from 'svelte/store';
+  import { onDestroy } from 'svelte';
   import LoanDetails from '$lib/components/LoanDetails.svelte';
   import OriginateLoan from '$lib/components/OriginateLoan.svelte';
   import { loanRequests } from '$lib/stores/loanRequests';
@@ -20,6 +21,11 @@
     loanRequests.approveLoan(loanId);
     selectedLoanId.set(null);
   }
+
+  onDestroy(() => {
+    loanData.set(null);
+  });
+  
 </script>
 
 <div class="bg-white p-6 rounded-lg shadow-md">
