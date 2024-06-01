@@ -3,8 +3,7 @@ export default {
   content: [
     './src/**/*.{html,js,svelte}',
     './src/routes/**/*.{html,js,svelte}',
-    './src/lib/**/*.{html,js,svelte}',
-    './node_modules/svelte/**/*.{html,js,svelte}'
+    './src/lib/**/*.{html,js,svelte}'
   ],
   theme: {
     fontFamily: {
